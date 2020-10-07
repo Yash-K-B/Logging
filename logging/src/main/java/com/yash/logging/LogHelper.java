@@ -7,7 +7,7 @@ public class LogHelper {
 
     static LogHelper instance;
 
-    static LogHelper getInstance(String tag) {
+    public static LogHelper getInstance(String tag) {
         if (instance == null)
             instance = new LogHelper(tag);
         return instance;
@@ -17,23 +17,23 @@ public class LogHelper {
         this.tag = tag;
     }
 
-    void d(String tag, String message) {
+    public void d(String tag, String message) {
         Log.d(this.tag, tag + " : " + message);
     }
 
-    void i(String tag, String message) {
+    public void i(String tag, String message) {
         Log.i(this.tag, tag + " : " + message);
     }
 
-    void e(String tag, String message) {
+    public void e(String tag, String message) {
         Log.e(this.tag, tag + " : " + message);
     }
 
-    void v(String tag, String message) {
+    public void v(String tag, String message) {
         Log.v(this.tag, tag + " : " + message);
     }
 
-    void w(String tag, String message) {
+    public void w(String tag, String message) {
         Log.w(this.tag, tag + " : " + message);
     }
 
