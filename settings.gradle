@@ -1,4 +1,3 @@
 include ':logging'
-include ':log'
 include ':app'
 rootProject.name = "Logging"
