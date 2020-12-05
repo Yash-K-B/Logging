@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Date;
 
 public class LogHelper {
     private String tag;
@@ -70,7 +71,8 @@ public class LogHelper {
         this.tag = tag;
         File logFile = new File(context.getFilesDir(), "logs.txt");
         try {
-            logsWriter = new DataOutputStream(new FileOutputStream(logFile));
+            logsWriter = new DataOutputStream(new FileOutputStream(logFile,true));
+            logsWriter.writeBytes("TimeStamp: **** " +new Date().toString()+" ****\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -88,7 +90,7 @@ public class LogHelper {
     private void log(String type, String tag, String message) {
         if(!logHelperSettings.isFileLogging()) return;
         try {
-            logsWriter.writeUTF("  " + type + " ->  " + tag + " : " + message + "\n");
+            logsWriter.writeBytes("  " + type + " ->  " + tag + " : " + message + "\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
