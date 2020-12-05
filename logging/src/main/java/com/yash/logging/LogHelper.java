@@ -5,13 +5,15 @@ import android.util.Log;
 
 import com.yash.logging.settings.LogHelperSettings;
 
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 
 public class LogHelper {
     private String tag;
-    private FileWriter logsWriter;
+    private DataOutputStream logsWriter;
     private static LogHelperSettings logHelperSettings;
 
     private static LogHelper instance;
@@ -68,7 +70,7 @@ public class LogHelper {
         this.tag = tag;
         File logFile = new File(context.getFilesDir(), "logs.txt");
         try {
-            logsWriter = new FileWriter(logFile);
+            logsWriter = new DataOutputStream(new FileOutputStream(logFile));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -86,7 +88,7 @@ public class LogHelper {
     private void log(String type, String tag, String message) {
         if(!logHelperSettings.isFileLogging()) return;
         try {
-            logsWriter.write("\t" + type + " -> " + tag + " : " + message + "\n");
+            logsWriter.writeUTF("  " + type + " ->  " + tag + " : " + message + "\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
