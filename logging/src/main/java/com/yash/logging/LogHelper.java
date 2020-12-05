@@ -3,17 +3,26 @@ package com.yash.logging;
 import android.content.Context;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.yash.logging.settings.LogHelperSettings;
 
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Date;
 
 public class LogHelper {
     private String tag;
+    private static final String FILE_NAME = "logs.txt";
+    File logFile;
     private DataOutputStream logsWriter;
     private static LogHelperSettings logHelperSettings;
 
@@ -25,6 +34,10 @@ public class LogHelper {
 
     public static void flush() {
         instance.save();
+    }
+
+    public static String getLogs(){
+        return instance.readLogs();
     }
 
 
@@ -66,12 +79,12 @@ public class LogHelper {
         LogHelper.logHelperSettings = logHelperSettings;
     }
 
-    private LogHelper(Context context, String tag) {
+    private LogHelper(@NonNull Context context,@NonNull String tag) {
         logHelperSettings = new LogHelperSettings();
         this.tag = tag;
-        File logFile = new File(context.getFilesDir(), "logs.txt");
+        logFile = new File(context.getFilesDir(), FILE_NAME);
         try {
-            logsWriter = new DataOutputStream(new FileOutputStream(logFile,true));
+            logsWriter = new DataOutputStream(new FileOutputStream(new File(context.getFilesDir(), FILE_NAME),true));
             logsWriter.writeBytes("TimeStamp: **** " +new Date().toString()+" ****\n");
         } catch (IOException e) {
             e.printStackTrace();
@@ -95,5 +108,26 @@ public class LogHelper {
             e.printStackTrace();
         }
     }
+
+    @NonNull
+    private String readLogs(){
+        StringBuilder builder = new StringBuilder();
+        try {
+            FileInputStream logsReader = new FileInputStream(logFile);
+            byte[] bytes = new byte[16384];
+            int count;
+            while ((count = logsReader.read(bytes))!=-1){
+                for (int i = 0; i < count; i++) {
+                    builder.append((char)bytes[i]);
+                }
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return builder.toString();
+    }
+
+
 
 }
