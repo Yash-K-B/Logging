@@ -35,11 +35,10 @@
 5. LogHelper.w(TAG,message);
 ```
 
-# Setting
+# Settings
 ```java
  1. LogHelper.getLogHelperSettings().setConsoleLogging(true/false) - display/hide logs in console
  2. LogHelper.getLogHelperSettings().setFileLogging(true/false) - display/hide logs inside the app
- 
 ```
   
   
