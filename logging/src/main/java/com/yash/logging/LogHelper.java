@@ -1,11 +1,13 @@
 package com.yash.logging;
 
 import android.content.Context;
+import android.os.Environment;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import com.yash.logging.settings.LogHelperSettings;
+import com.yash.logging.utils.ExceptionUtil;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -18,9 +20,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Locale;
 
 public class LogHelper {
-    private String tag;
+    private final String tag;
     private static final String FILE_NAME = "logs.txt";
     File logFile;
     private DataOutputStream logsWriter;
@@ -36,7 +39,7 @@ public class LogHelper {
         instance.save();
     }
 
-    public static String getLogs(){
+    public static String getLogs() {
         return instance.readLogs();
     }
 
@@ -47,16 +50,36 @@ public class LogHelper {
             Log.d(instance.tag, tag + " : " + message);
     }
 
+    public static void d(String tag, String message, Object... vars) {
+        String finalMessage = String.format(Locale.US, message, vars);
+        instance.log("D", tag, finalMessage);
+        if (logHelperSettings.isConsoleLogging())
+            Log.d(instance.tag, tag + " : " + finalMessage);
+    }
+
     public static void i(String tag, String message) {
         instance.log("I", tag, message);
         if (logHelperSettings.isConsoleLogging())
             Log.i(instance.tag, tag + " : " + message);
     }
 
+    public static void i(String tag, String message, Object... vars) {
+        String finalMessage = String.format(Locale.US, message, vars);
+        instance.log("I", tag, finalMessage);
+        if (logHelperSettings.isConsoleLogging())
+            Log.i(instance.tag, tag + " : " + finalMessage);
+    }
+
     public static void e(String tag, String message) {
         instance.log("E", tag, message);
         if (logHelperSettings.isConsoleLogging())
             Log.e(instance.tag, tag + " : " + message);
+    }
+
+    public static void e(String tag, String message, Throwable t) {
+        instance.log("E", tag, message + "\n" + ExceptionUtil.getStackStrace(t));
+        if (logHelperSettings.isConsoleLogging())
+            Log.e(instance.tag, tag + " : " + message, t);
     }
 
     public static void v(String tag, String message) {
@@ -79,13 +102,14 @@ public class LogHelper {
         LogHelper.logHelperSettings = logHelperSettings;
     }
 
-    private LogHelper(@NonNull Context context,@NonNull String tag) {
+    private LogHelper(@NonNull Context context, @NonNull String tag) {
         logHelperSettings = new LogHelperSettings();
         this.tag = tag;
-        logFile = new File(context.getFilesDir(), FILE_NAME);
+
+        logFile = new File(Environment.getExternalStorageState(context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)).equals(Environment.MEDIA_MOUNTED) ? context.getExternalFilesDir(null) : context.getFilesDir(), FILE_NAME);
         try {
-            logsWriter = new DataOutputStream(new FileOutputStream(new File(context.getFilesDir(), FILE_NAME),true));
-            logsWriter.writeBytes("TimeStamp: **** " +new Date().toString()+" ****\n");
+            logsWriter = new DataOutputStream(new FileOutputStream(new File(context.getFilesDir(), FILE_NAME), true));
+            logsWriter.writeBytes("TimeStamp: **** " + new Date().toString() + " ****\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -101,7 +125,7 @@ public class LogHelper {
     }
 
     private void log(String type, String tag, String message) {
-        if(!logHelperSettings.isFileLogging()) return;
+        if (!logHelperSettings.isFileLogging()) return;
         try {
             logsWriter.writeBytes("  " + type + " ->  " + tag + " : " + message + "\n");
         } catch (IOException e) {
@@ -110,15 +134,15 @@ public class LogHelper {
     }
 
     @NonNull
-    private String readLogs(){
+    private String readLogs() {
         StringBuilder builder = new StringBuilder();
         try {
             FileInputStream logsReader = new FileInputStream(logFile);
             byte[] bytes = new byte[16384];
             int count;
-            while ((count = logsReader.read(bytes))!=-1){
+            while ((count = logsReader.read(bytes)) != -1) {
                 for (int i = 0; i < count; i++) {
-                    builder.append((char)bytes[i]);
+                    builder.append((char) bytes[i]);
                 }
 
             }
@@ -127,7 +151,6 @@ public class LogHelper {
         }
         return builder.toString();
     }
-
 
 
 }
